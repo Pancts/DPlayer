@@ -23,12 +23,15 @@ export default {
             .get(options.url)
             .then((response) => {
                 const data = response.data;
-                if (!data || data.code !== 0) {
+                if (!data) {
                     options.error && options.error(data && data.msg);
                     return;
                 }
                 options.success &&
                     options.success(
+						options.type == 'json'? 
+						data.split("\n")
+						:
                         data.data.map((item) => ({
                             time: item[0],
                             type: item[1],

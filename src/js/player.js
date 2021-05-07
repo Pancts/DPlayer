@@ -106,6 +106,7 @@ class DPlayer {
                     maximum: this.options.danmaku.maximum,
                     addition: this.options.danmaku.addition,
                     user: this.options.danmaku.user,
+					url: this.options.danmaku.url,
                 },
                 events: this.events,
                 tran: (msg) => this.tran(msg),
@@ -316,6 +317,7 @@ class DPlayer {
                     maximum: danmakuAPI.maximum,
                     addition: danmakuAPI.addition,
                     user: danmakuAPI.user,
+					url: danmakuAPI.url,
                 });
             }
         }

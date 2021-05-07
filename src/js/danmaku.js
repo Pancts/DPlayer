@@ -22,11 +22,15 @@ class Danmaku {
 
     load() {
         let apiurl;
-        if (this.options.api.maximum) {
-            apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}&max=${this.options.api.maximum}`;
-        } else {
-            apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}`;
-        }
+        if (this.options.api.url){
+			apiurl = this.options.api.url;
+		} else {
+			if (this.options.api.maximum) {
+			    apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}&max=${this.options.api.maximum}`;
+			} else {
+			    apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}`;
+			}
+		}
         const endpoints = (this.options.api.addition || []).slice(0);
         endpoints.push(apiurl);
         this.events && this.events.trigger('danmaku_load_start', endpoints);
@@ -60,8 +64,24 @@ class Danmaku {
         for (let i = 0; i < endpoints.length; ++i) {
             this.options.apiBackend.read({
                 url: endpoints[i],
+				type: 'json',
                 success: (data) => {
-                    results[i] = data;
+                    //results[i] = data;
+					results[i] = []
+					let start_time = 0;
+					data.forEach((item) => {
+						if (item){
+							let dm = JSON.parse(item);
+							if (start_time == 0){
+								start_time = dm.t;
+							}
+							results[i].push({
+								time: dm.t - start_time,
+								author: dm.n,
+								text: dm.m
+							})
+						}
+					})
 
                     ++readCount;
                     if (readCount === endpoints.length) {
