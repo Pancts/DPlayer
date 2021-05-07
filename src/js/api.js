@@ -29,16 +29,15 @@ export default {
                 }
                 options.success &&
                     options.success(
-						options.type == 'json'? 
-						data.split("\n")
-						:
-                        data.data.map((item) => ({
-                            time: item[0],
-                            type: item[1],
-                            color: item[2],
-                            author: item[3],
-                            text: item[4],
-                        }))
+                        options.type === 'json'
+                            ? data.split('\n')
+                            : data.data.map((item) => ({
+                                  time: item[0],
+                                  type: item[1],
+                                  color: item[2],
+                                  author: item[3],
+                                  text: item[4],
+                              }))
                     );
             })
             .catch((e) => {

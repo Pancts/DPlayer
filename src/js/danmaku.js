@@ -22,15 +22,15 @@ class Danmaku {
 
     load() {
         let apiurl;
-        if (this.options.api.url){
-			apiurl = this.options.api.url;
-		} else {
-			if (this.options.api.maximum) {
-			    apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}&max=${this.options.api.maximum}`;
-			} else {
-			    apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}`;
-			}
-		}
+        if (this.options.api.url) {
+            apiurl = this.options.api.url;
+        } else {
+            if (this.options.api.maximum) {
+                apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}&max=${this.options.api.maximum}`;
+            } else {
+                apiurl = `${this.options.api.address}v3/?id=${this.options.api.id}`;
+            }
+        }
         const endpoints = (this.options.api.addition || []).slice(0);
         endpoints.push(apiurl);
         this.events && this.events.trigger('danmaku_load_start', endpoints);
@@ -43,7 +43,7 @@ class Danmaku {
 
             this.options.callback();
 
-            this.events && this.events.trigger('danmaku_load_end');
+            this.events && this.events.trigger('danmaku_load_end', this.dan);
         });
     }
 
@@ -64,24 +64,24 @@ class Danmaku {
         for (let i = 0; i < endpoints.length; ++i) {
             this.options.apiBackend.read({
                 url: endpoints[i],
-				type: 'json',
+                type: 'json',
                 success: (data) => {
-                    //results[i] = data;
-					results[i] = []
-					let start_time = 0;
-					data.forEach((item) => {
-						if (item){
-							let dm = JSON.parse(item);
-							if (start_time == 0){
-								start_time = dm.t;
-							}
-							results[i].push({
-								time: dm.t - start_time,
-								author: dm.n,
-								text: dm.m
-							})
-						}
-					})
+                    // results[i] = data;
+                    results[i] = [];
+                    let start_time = 0;
+                    data.forEach((item) => {
+                        if (item) {
+                            const dm = JSON.parse(item);
+                            if (start_time === 0) {
+                                start_time = dm.t;
+                            }
+                            results[i].push({
+                                time: dm.t - start_time,
+                                author: dm.n,
+                                text: dm.m,
+                            });
+                        }
+                    });
 
                     ++readCount;
                     if (readCount === endpoints.length) {
@@ -108,17 +108,18 @@ class Danmaku {
             author: this.options.api.user,
             time: this.options.time(),
             text: dan.text,
-            color: dan.color,
-            type: dan.type,
+            color: dan.color ? dan.color : 'fff',
+            type: dan.type ? dan.type : 0,
         };
-        this.options.apiBackend.send({
-            url: this.options.api.address + 'v3/',
-            data: danmakuData,
-            success: callback,
-            error: (msg) => {
-                this.options.error(msg || this.options.tran('Danmaku send failed'));
-            },
-        });
+        callback;
+        // this.options.apiBackend.send({
+        //     url: this.options.api.address + 'v3/',
+        //     data: danmakuData,
+        //     success: callback,
+        //     error: (msg) => {
+        //         this.options.error(msg || this.options.tran('Danmaku send failed'));
+        //     },
+        // });
 
         this.dan.splice(this.danIndex, 0, danmakuData);
         this.danIndex++;
@@ -327,13 +328,7 @@ class Danmaku {
     }
 
     htmlEncode(str) {
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;')
-            .replace(/\//g, '&#x2f;');
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g, '&#x2f;');
     }
 
     resize() {
